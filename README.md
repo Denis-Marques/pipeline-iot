@@ -1,81 +1,122 @@
-# 🌡️ Pipeline IoT — Monitoramento de Temperatura
+# Pipeline de Dados com IoT e Docker
 
-## Sobre o projeto
+Projeto acadêmico de Engenharia de Dados que utiliza Python, Pandas, PostgreSQL, Docker e Streamlit para processar e analisar leituras de temperatura de dispositivos IoT.
 
-Este projeto implementa um pipeline de dados para processar leituras de temperatura de um conjunto de dados IoT, armazená-las em um banco de dados PostgreSQL e apresentar os resultados em um dashboard interativo.
+## Objetivo
 
-O objetivo é praticar conceitos de Engenharia de Dados, análise de dados, SQL, containers e visualização.
+Construir um pipeline de dados capaz de ler um arquivo CSV, tratar os dados, armazená-los em um banco PostgreSQL e disponibilizar análises por meio de consultas SQL e de um dashboard interativo.
 
 ## Tecnologias utilizadas
 
-- **Python** — processamento dos dados
-- **Pandas** — leitura, limpeza e transformação do CSV
-- **PostgreSQL** — armazenamento dos dados
-- **Docker** — execução do banco de dados em um container
-- **SQLAlchemy** — conexão entre Python e PostgreSQL
-- **SQL** — criação de views analíticas
-- **Streamlit** — construção do dashboard
-- **Plotly** — gráficos interativos
-- **Git e GitHub** — controle de versão
-
-## Funcionalidades
-
-- Leitura e processamento de dados em CSV
-- Conversão de datas e temperaturas
-- Remoção de registros com campos essenciais inválidos
-- Armazenamento dos dados no PostgreSQL
-- Criação de views para análise de temperaturas médias, extremas e diárias
-- Dashboard com indicadores, filtros, gráficos e tabela de leituras recentes
+- Python
+- Pandas
+- PostgreSQL 16
+- Docker
+- SQLAlchemy
+- Streamlit
+- Plotly
+- Git e GitHub
 
 ## Estrutura do projeto
 
 ```text
 pipeline-iot/
-├── data/              # Arquivo CSV de origem (não incluído no primeiro commit)
+├── data/
+│   └── IOT-temp.csv
 ├── sql/
-│   └── views.sql      # Views analíticas
-├── app.py             # Dashboard Streamlit
-├── pipeline.py        # Processamento e carga dos dados
-├── requirements.txt   # Dependências Python
-├── .gitignore
-└── README.md
+│   └── views.sql
+├── app.py
+├── pipeline.py
+├── requirements.txt
+├── README.md
+└── .gitignore
 ```
 
-## Como executar
+## Como executar o projeto
 
-1. Instale Python, Docker e Git.
-2. Inicie o Docker Desktop e configure o PostgreSQL.
-3. Crie e ative um ambiente virtual Python.
-4. Instale as dependências:
+### 1. Pré-requisitos
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+Instale o Python, o Git e o Docker Desktop. Inicie o Docker Desktop antes de continuar.
 
-5. Disponibilize o arquivo CSV esperado pelo pipeline em `data/IOT-temp.csv`.
-6. Configure a conexão do PostgreSQL em `pipeline.py` e `app.py`.
-7. Execute o pipeline:
+### 2. Clonar o repositório
 
-   ```bash
-   python pipeline.py
-   ```
+```bash
+git clone https://github.com/Denis-Marques/pipeline-iot.git
+cd pipeline-iot
+```
 
-8. Inicie o dashboard:
+### 3. Criar e ativar o ambiente virtual
 
-   ```bash
-   streamlit run app.py
-   ```
+No Windows PowerShell:
 
-9. Abra o endereço local informado pelo Streamlit, normalmente `http://localhost:8501`.
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-## Análises disponíveis
+### 4. Instalar as dependências
 
-- Quantidade de leituras e temperaturas mínima, média e máxima
-- Evolução da temperatura média diária
-- Comparação entre ambientes internos e externos
-- Consulta das leituras mais recentes
-- Views SQL para análises complementares
+```powershell
+pip install -r requirements.txt
+```
 
-## Observação
+### 5. Criar o banco PostgreSQL com Docker
 
-Este projeto tem finalidade educacional. Para publicação e uso em outros ambientes, configure as credenciais do banco de dados por variáveis de ambiente e não publique senhas ou informações sensíveis.
+```powershell
+docker run --name postgres-iot -e POSTGRES_USER=iot_user -e POSTGRES_PASSWORD=sua_senha -e POSTGRES_DB=iot_db -p 5432:5432 -d postgres:16
+```
+
+Se a porta 5432 já estiver ocupada ou o contêiner já existir, verifique a configuração antes de criar outro.
+
+### 6. Configurar a conexão
+
+Na pasta principal do projeto, crie um arquivo chamado `.env` com o seguinte conteúdo:
+
+```env
+DATABASE_URL=postgresql+psycopg2://iot_user:sua_senha@localhost:5432/iot_db
+```
+
+A senha deve ser a mesma definida na criação do contêiner PostgreSQL.
+
+**Importante:** o arquivo `.env` contém configurações locais e não deve ser enviado ao GitHub.
+
+### 7. Executar o pipeline
+
+```powershell
+python pipeline.py
+```
+
+O script lê o CSV, trata os dados inválidos, remove registros duplicados e carrega as leituras no PostgreSQL.
+
+### 8. Criar as views SQL
+
+Depois que o pipeline terminar, execute o conteúdo de `sql/views.sql` no banco `iot_db`, utilizando uma ferramenta PostgreSQL, como o pgAdmin ou o SQL Shell (psql).
+
+As views permitem consultar médias de temperatura, temperaturas extremas e resumos diários.
+
+### 9. Abrir o dashboard
+
+Em outro terminal, com o ambiente virtual ativado:
+
+```powershell
+streamlit run app.py
+```
+
+Abra no navegador o endereço local informado pelo Streamlit, normalmente `http://localhost:8501`.
+
+## Resultados esperados
+
+- Dados de temperatura armazenados no PostgreSQL.
+- Tratamento de valores inválidos e remoção de duplicatas.
+- Consultas analíticas disponibilizadas por views SQL.
+- Dashboard interativo para explorar as leituras de temperatura.
+
+## Fonte dos dados
+
+Dataset **Temperature Readings: IoT Devices**, disponibilizado no Kaggle. O arquivo utilizado está na pasta `data/`.
+
+## Autor
+
+Denis Marques
+
+Repositório: https://github.com/Denis-Marques/pipeline-iot
